@@ -3,9 +3,9 @@
   hosts: webservers
   become: true
   gather_facts: yes
-
   vars_files:
     - tomcat_vars.yml
+
   tasks:
   - name: install java-1.8*
     yum:
@@ -24,7 +24,7 @@
       dest: /opt
       remote_src: yes
 
-  - name: change permissions on apache-tomcat file
+  - name: change permissions on apache-tomcat dir
     file:
       path: /opt/{{ tomcat_package }}
       mode: 0755
@@ -36,11 +36,19 @@
       dest: /usr/local/bin/{{item.tomcat_command}}
       state: link
     loop:
-      - { tomcat_script: 'startup.sh', tomcat_command: tomcatup}
-      - { tomcat_script: 'shutdown.sh', tomcat_command: tomcatdown}
+      - { tomcat_script: startup.sh, tomcat_command: tomcatup}
+      - { tomcat_script: shutdown.sh, tomcat_command: tomcatdown}
+    notify: start tomcat
 
-  - name: Start the services
-    command: nohup ./startup.sh
-    args:
-      chdir: /opt/{{ tomcat_package }}/bin
+  - name: change port number
+    copy:
+      src: server.xml
+      dest: /opt/{{ tomcat_package }}/conf/server.xml 
+    notify: restart tomcat
 
+  handlers:
+  - name: start tomcat 
+    shell: nohup /usr/local/bin/tomcatup
+
+  - name: restart tomcat
+    shell: tomcatdown; nohup /usr/local/bin/tomcatup

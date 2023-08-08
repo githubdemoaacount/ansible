@@ -1,0 +1,7 @@
+---
+- name: start tomcat 
+  shell: nohup /usr/local/bin/tomcatup
+
+- name: restart tomcat
+  shell: tomcatdown; nohup /usr/local/bin/tomcatup
+# handlers file for tomcat_setup

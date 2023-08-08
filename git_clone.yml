@@ -1,0 +1,12 @@
+---
+- name: cloning repo
+  hosts: webservers
+  gather_facts: no
+  vars_files:
+    vault2.yml
+  tasks:
+  - name: cloning repo
+    git:
+      repo: git@github.com:githubdemoaacount/ansible.git
+      dest: /home/ansadmin/vaulttest
+      key_file: /home/ansadmin/.ssh/id_rsa
